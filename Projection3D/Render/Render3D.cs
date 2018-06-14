@@ -54,7 +54,7 @@ namespace Projection3D.Render
                     g.DrawLine(pen, v1.x, v1.y, v2.x, v2.y);
                     g.DrawLine(pen, v2.x, v2.y, v0.x, v0.y);
 
-                    // solid mode
+                    // solid mode 
                     poly[0].X = v0.x;
                     poly[0].Y = v0.y;
 
