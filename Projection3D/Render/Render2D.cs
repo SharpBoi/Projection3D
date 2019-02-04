@@ -12,7 +12,7 @@ namespace Projection3D.Render
     public class Render2D
     {
         #region Fields
-        private Form canvas;
+        private Control canvas;
         private Bitmap renderTexture;
         private Graphics gViewport;
         private Graphics gRender;
@@ -22,7 +22,7 @@ namespace Projection3D.Render
         #endregion
 
         #region Funcs
-        public Render2D(Form canvas, int width, int height)
+        public Render2D(Control canvas, int width, int height)
         {
             renderThread = new Thread(render);
             renderThread.Priority = ThreadPriority.Highest;

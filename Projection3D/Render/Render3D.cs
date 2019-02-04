@@ -42,17 +42,19 @@ namespace Projection3D.Render
                     v1 = grid.RsltVerts[mesh.Inds[i - 1]];
                     v2 = grid.RsltVerts[mesh.Inds[i - 2]];
 
-                    /*деление - угол обзора
+                    /*деление - константа
                      * прибавление - дистанция от вершины до камеры
                      */
+
+                    // Perspective projection
                     if (v0.z != 0) v0 *= (-v0.z / 100 + 2);
                     if (v1.z != 0) v1 *= (-v1.z / 100 + 2);
                     if (v2.z != 0) v2 *= (-v2.z / 100 + 2);
 
                     // wireframe
-                    g.DrawLine(pen, v0.x, v0.y, v1.x, v1.y);
-                    g.DrawLine(pen, v1.x, v1.y, v2.x, v2.y);
-                    g.DrawLine(pen, v2.x, v2.y, v0.x, v0.y);
+                    //g.DrawLine(pen, v0.x, v0.y, v1.x, v1.y);
+                    //g.DrawLine(pen, v1.x, v1.y, v2.x, v2.y);
+                    //g.DrawLine(pen, v2.x, v2.y, v0.x, v0.y);
 
                     // solid mode 
                     poly[0].X = v0.x;
@@ -64,7 +66,7 @@ namespace Projection3D.Render
                     poly[2].X = v2.x;
                     poly[2].Y = v2.y;
 
-                    int clr = (byte)(((float)i / mesh.Inds.Length) * 255) + 1;
+                    int clr = (byte)(((float)i / mesh.Inds.Length) * 255);
                     if (clr > 255) clr = 255;
                     brush = new SolidBrush(Color.FromArgb(clr, clr, 255));
 

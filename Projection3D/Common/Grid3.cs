@@ -17,8 +17,12 @@ namespace Projection3D.Common
         private Vector3[] rsltVerts;
 
         private Vector3 scale;
+        private Vector3 prevEulerRad;
         private Vector3 eulerRad;
         private Vector3 pos;
+
+        private Vector2 rotResult;
+        private RotConf latestRotConf = RotConf.xyz;
         #endregion
 
         #region Funcs
@@ -35,35 +39,89 @@ namespace Projection3D.Common
         {
             for (int i = 0; i < srcVerts.Length; i++)
             {
-                // scale
+                // SCALE
                 rsltVerts[i].x = srcVerts[i].x * scale.x;
                 rsltVerts[i].y = srcVerts[i].y * scale.y;
                 rsltVerts[i].z = srcVerts[i].z * scale.z;
 
-                // rot
-                Vector2 rslt;
 
+                // ROTATION
+                // NEW
+                if (eulerRad.x != prevEulerRad.x)
+                    latestRotConf = RotConf.xyz;
+                else if (eulerRad.y != prevEulerRad.y)
+                    latestRotConf = RotConf.yxz;
+                else if (eulerRad.z != prevEulerRad.z)
+                    latestRotConf = RotConf.zxy;
 
-                // around X axis
-                oyz.AngleRad = eulerRad.x;
-                rslt = oyz.Rotate(rsltVerts[i].y, rsltVerts[i].z);
-                rsltVerts[i].y = rslt.x;
-                rsltVerts[i].z = rslt.y;
+                rotAroundX(i, eulerRad.x);
+                rotAroundY(i, eulerRad.y);
+                rotAroundZ(i, eulerRad.z);
 
-                // around Y axis
-                ozx.AngleRad = eulerRad.y;
-                rslt = ozx.Rotate(rsltVerts[i].z, rsltVerts[i].x);
-                rsltVerts[i].z = rslt.x;
-                rsltVerts[i].x = rslt.y;
+                //if (latestRotConf == RotConf.xyz)
+                //{
+                //    rotAroundX(i, eulerRad.x);
+                //    rotAroundY(i, eulerRad.y);
+                //    rotAroundZ(i, eulerRad.z);
+                //}
+                //else if (latestRotConf == RotConf.yxz)
+                //{
+                //    rotAroundX(i, eulerRad.x);
+                //    rotAroundZ(i, eulerRad.z);
+                //    rotAroundY(i, eulerRad.y);
+                //}
+                //else if (latestRotConf == RotConf.zxy)
+                //{
+                //    rotAroundZ(i, eulerRad.z);
+                //    rotAroundX(i, eulerRad.x);
+                //    rotAroundY(i, eulerRad.y);
+                //}
 
-                // around Z axis
-                oxy.AngleRad = eulerRad.z;
-                rslt = oxy.Rotate(rsltVerts[i].x, rsltVerts[i].y);
-                rsltVerts[i].x = rslt.x;
-                rsltVerts[i].y = rslt.y;
-                // pos
+                // OLD(work well)
+                //Vector2 rslt;
+
+                //// around X axis
+                //oyz.AngleRad = eulerRad.x;
+                //rslt = oyz.Rotate(rsltVerts[i].y, rsltVerts[i].z);
+                //rsltVerts[i].y = rslt.x;
+                //rsltVerts[i].z = rslt.y;
+
+                //// around Y axis
+                //ozx.AngleRad = eulerRad.y;
+                //rslt = ozx.Rotate(rsltVerts[i].z, rsltVerts[i].x);
+                //rsltVerts[i].z = rslt.x;
+                //rsltVerts[i].x = rslt.y;
+
+                //// around Z axis
+                //oxy.AngleRad = eulerRad.z;
+                //rslt = oxy.Rotate(rsltVerts[i].x, rsltVerts[i].y);
+                //rsltVerts[i].x = rslt.x;
+                //rsltVerts[i].y = rslt.y;
+
+                // POSITION
                 rsltVerts[i] += pos;
             }
+        }
+        private void rotAroundX(int vertexIndex, float angleRad)
+        {
+            oyz.AngleRad = angleRad;
+            rotResult = oyz.Rotate(rsltVerts[vertexIndex].y, rsltVerts[vertexIndex].z);
+            rsltVerts[vertexIndex].y = rotResult.x;
+            rsltVerts[vertexIndex].z = rotResult.y;
+        }
+        private void rotAroundY(int vertexIndex, float angleRad)
+        {
+            ozx.AngleRad = angleRad;
+            rotResult = ozx.Rotate(rsltVerts[vertexIndex].z, rsltVerts[vertexIndex].x);
+            rsltVerts[vertexIndex].z = rotResult.x;
+            rsltVerts[vertexIndex].x = rotResult.y;
+        }
+        private void rotAroundZ(int vertexIndex, float angleRad)
+        {
+            oxy.AngleRad = angleRad;
+            rotResult = oxy.Rotate(rsltVerts[vertexIndex].x, rsltVerts[vertexIndex].y);
+            rsltVerts[vertexIndex].x = rotResult.x;
+            rsltVerts[vertexIndex].y = rotResult.y;
         }
         #endregion
 
@@ -82,6 +140,7 @@ namespace Projection3D.Common
             get { return eulerRad; }
             set
             {
+                prevEulerRad = eulerRad;
                 eulerRad = value;
                 updateScaleRotPos();
             }
@@ -105,6 +164,8 @@ namespace Projection3D.Common
         #endregion
 
         #region classes
+        private enum RotConf { xyz, yxz, zxy }
+
         private class RotationGrid2D
         {
             #region MyRegion
@@ -140,6 +201,7 @@ namespace Projection3D.Common
                     //basis.y = (float)Math.Sin(angleRad);
                 }
             }
+            public Vector2 Basis { get { return basis; } }
             #endregion
         }
         #endregion
